@@ -36,9 +36,9 @@
       </th:block>
       <th:block th:unless="${#lists.isEmpty(list)}">
          <tr th:each="dto:${list}">
-            <td th:text="${dto.title}"></td>
-            <td th:text="${dto.writer}"></td>
-            <td th:text="${dto.publisher}"></td>
+            <td th:text="${dto.booktitle}"></td>
+            <td th:text="${dto.bookauthor}"></td>
+            <td th:text="${dto.bookpublisher}"></td>
             <td th:text="${#dates.format(dto.resdate, 'yyyy-MM-dd')}"></td>
          </tr>
       </th:block>

@@ -86,11 +86,13 @@ public class BookService {
       
 
       // 수정하기
-      public boolean reserveBook(int book_seq, String reserver) {
+      public boolean reserveBook(String bookTitle, String bookAuthor, String bookPublisher, String reserver) {
                //command:UI --> DTO:DB
-               Map<String, Object> map = new HashMap<>();
+               Map<String, String> map = new HashMap<>();
                
-               map.put("book_seq", book_seq);
+               map.put("bookTitle", bookTitle);
+               map.put("bookAuthor", bookAuthor);
+               map.put("bookPublisher", bookPublisher);
                map.put("reserver", reserver);
                
                return bookMapper.reserveBook(map);

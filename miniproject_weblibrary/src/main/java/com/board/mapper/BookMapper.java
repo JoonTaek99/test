@@ -25,7 +25,7 @@ public interface BookMapper {
       public boolean insertBook(BookDto dto);
       
       // 글 수정
-      public boolean reserveBook(Map<String, Object> map);
+      public boolean reserveBook(Map<String, String> map);
       
       // 글 삭제
       public boolean mulDel(String[] seqs);

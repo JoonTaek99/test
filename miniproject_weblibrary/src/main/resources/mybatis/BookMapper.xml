@@ -25,11 +25,10 @@
       WHERE BOOK_SEQ = #{book_seq}
    </select>
    
-   <update id="reserveBook" parameterType="map">
-   		UPDATE BOOKINFO
-   		SET RESERVER = #{reserver}, RESFLAG = 'Y', RESDATE = SYSDATE()
-   		WHERE BOOK_SEQ = #{book_seq}
-   </update>
+   <insert id="reserveBook" parameterType="Map">
+		INSERT INTO reserveinfo
+		VALUES(NULL,#{bookTitle},#{bookAuthor},#{bookPublisher},#{reserver},SYSDATE())
+	</insert>
 	
 </mapper>
 

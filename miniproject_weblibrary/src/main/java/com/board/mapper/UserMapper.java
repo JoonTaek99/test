@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.board.dtos.BookDto;
+import com.board.dtos.ReserveDto;
 import com.board.dtos.UserDto;
 
 @Mapper
@@ -28,5 +29,5 @@ public interface UserMapper {
    public boolean mulDel(String[] id);
    
 // 검색관련 목록
-   public List<BookDto> userReserve(String id);
+   public List<ReserveDto> userReserve(String id);
 }

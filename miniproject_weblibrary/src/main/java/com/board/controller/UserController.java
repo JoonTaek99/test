@@ -19,6 +19,7 @@ import com.board.command.AddUserCommand;
 import com.board.command.LoginCommand;
 import com.board.command.UserUpdateCommand;
 import com.board.dtos.BookDto;
+import com.board.dtos.ReserveDto;
 import com.board.dtos.UserDto;
 import com.board.service.UserService;
 
@@ -138,7 +139,7 @@ public class UserController {
 	        // UserDto 객체에서 id 값을 가져옴
 	        String id = mdto.getId();
 	        System.out.println("사용자 ID: " + id);
-	        List<BookDto> list = userService.userReserve(id);
+	        List<ReserveDto> list = userService.userReserve(id);
 	        model.addAttribute("list", list);
 	        return "user/userReserve";
 	    } else {

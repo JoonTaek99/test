@@ -50,9 +50,9 @@
       </foreach>
    </update>   
 	
-	<select id="userReserve" parameterType="String" resultType="bookDto">
-		SELECT BOOK_SEQ, TITLE, WRITER, PUBLISHER, RESFLAG, RESDATE
-		FROM BOOKINFO
+	<select id="userReserve" parameterType="String" resultType="reserveDto">
+		SELECT SEQ, BOOKTITLE, BOOKAUTHOR, BOOKPUBLISHER, RESERVER, RESDATE
+		FROM reserveinfo
 		WHERE RESERVER = #{id}
 	</select>
 	

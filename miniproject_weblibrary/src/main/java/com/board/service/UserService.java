@@ -10,6 +10,7 @@ import com.board.command.AddUserCommand;
 import com.board.command.LoginCommand;
 import com.board.command.UserUpdateCommand;
 import com.board.dtos.BookDto;
+import com.board.dtos.ReserveDto;
 import com.board.dtos.UserDto;
 import com.board.mapper.UserMapper;
 import com.board.status.RoleStatus;
@@ -105,7 +106,7 @@ public class UserService {
        return userMapper.mulDel(id);
     }
    
-   public List<BookDto> userReserve(String id){
+   public List<ReserveDto> userReserve(String id){
 	   System.out.println("서비스까지 전달 " + id);
 		return userMapper.userReserve(id);
 	}

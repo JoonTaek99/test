@@ -1,33 +1,46 @@
 package com.board.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import java.net.MalformedURLException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartRequest;
-import com.board.dtos.FileBoardDto;
+import org.xml.sax.SAXException;
+
 import com.board.command.BookInsertCommad;
 import com.board.command.ReserveBookCommand;
 import com.board.dtos.BookDto;
 import com.board.service.FileService;
 import com.board.service.BookService;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping(value = "/book")
@@ -49,14 +62,77 @@ public class BookController {
 		
 		return "book/bookList";
 	}
+
+//   @GetMapping(value = "/selectList")
+//	public String SelectList(Model model, String title) {
+//		System.out.println("검색목록 보기");
+//		List<BookDto> list = bookService.getSelectList(title);
+//		model.addAttribute("list", list);
+//		return "book/bookList";
+//	}
    
-   @GetMapping(value = "/selectList")
-	public String SelectList(Model model, String title) {
+   @GetMapping(value = "select")
+   public String SelectList() {
+	   return "book/selectList";
+   }
+   
+   @ResponseBody
+    @GetMapping(value = "/selectList")
+	public ResponseEntity<List<Map<String, String>>> SelectList(Model model, String selectWord) throws IOException, ParserConfigurationException, SAXException, ParserConfigurationException  {
 		System.out.println("검색목록 보기");
-		List<BookDto> list = bookService.getSelectList(title);
-		model.addAttribute("list", list);
-		return "book/bookList";
+		HttpURLConnection conn = null;
+        List<Map<String, String>> resultList = new ArrayList<>();
+		
+		try {
+			URL url = new URL("http://www.aladin.co.kr/ttb/api/ItemSearch.aspx?"
+					+ "Query=" + selectWord
+					+ "&QueryType=Title"
+					+ "&TTbkey=ttbljt29791600001");
+			
+			conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/xml");
+            conn.setDoOutput(true);
+			
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(conn.getInputStream());
+
+            // Extract data from XML
+            NodeList itemList = doc.getElementsByTagName("item");
+            
+            for (int i = 0; i < itemList.getLength(); i++) {
+                Node itemNode = itemList.item(i);
+                Map<String, String>map = new HashMap<>();   
+                if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element itemElement = (Element) itemNode;
+                    String title = itemElement.getElementsByTagName("title").item(0).getTextContent();
+                    String author = itemElement.getElementsByTagName("author").item(0).getTextContent();
+                    String publisher = itemElement.getElementsByTagName("publisher").item(0).getTextContent();
+                    map.put("title",title);
+                    map.put("author",author);
+                    map.put("publisher",publisher);
+                    resultList.add(map);
+                }
+            }
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            return new ResponseEntity<>(resultList, headers, HttpStatus.OK);
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}finally {
+			if (conn != null) {
+                conn.disconnect();
+            }
+		}
+		
+//		return "book/bookList";
 	}
+   
    
    @GetMapping(value = "/bookInsert")
    public String boardInsertForm(Model model) {
@@ -65,6 +141,8 @@ public class BookController {
       
       return "book/bookInsertForm";
    }
+   
+   
    
    @PostMapping(value = "/bookInsert")
    public String boardInsert(@Validated BookInsertCommad bookInsertCommad,
@@ -95,11 +173,18 @@ public class BookController {
    }
    
    @GetMapping(value = "/reserveBook")
-   public String reserveBook(int book_seq, String reserver, Model model, ReserveBookCommand reserveBookCommand) {
-	   System.out.println(book_seq + ", " + reserver);
-	   bookService.reserveBook(book_seq, reserver);
-	   return "redirect:/book/bookList";
+   public String reserveBook(String bookTitle, String bookAuthor, String bookPublisher, String reserver, Model model, ReserveBookCommand reserveBookCommand) {
+	   System.out.println(bookTitle + ", " + bookAuthor + "," + bookPublisher);
+	   bookService.reserveBook(bookTitle, bookAuthor,bookPublisher, reserver);
+	   return "redirect:/book/select";
    }
+   
+   @GetMapping(value = "/bookTimer")
+   public String bookTimer(Model model) {
+      System.out.println("책 읽기 타이머로 이동");
+      return "book/bookTimer";
+   }
+   
    
 //   @PostMapping(value = "/newsBoardUpdate")
 //   public String boardUpdate(@Validated NewsUpdateBoardCommand updateBoardCommand
